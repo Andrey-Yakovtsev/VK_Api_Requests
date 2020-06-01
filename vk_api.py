@@ -72,4 +72,9 @@ class User:
 
 Andrey = User(token, 'https://vk.com/ayakovtsev', 3293131)
 
-print(Andrey.get_wall_messages())
+print(Andrey.get_wall_messages()) # Доработать напильником
+# print(Andrey.get_status())
+# print(Andrey.set_status('Статус апдейт'))
+# print(Andrey.get_status())
+
+
