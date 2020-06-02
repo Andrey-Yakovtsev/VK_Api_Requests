@@ -5,7 +5,7 @@ import json
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
-token = '500bea61bc2aeb0f830121cb5f91dc73ff9e2e40ef58771cbfd6f3a1c0e77666f7067702661070939c376'
+token = '2c1c91739b1d46ddb11b8d25d5041edde9a15321be62f270b54ac5ef1148e78cdaf52d40f70cfc0bd2341'
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',
@@ -13,6 +13,10 @@ OAUTH_PARAMS = {
     'response_type': 'token',
     'v': 5.89
 }
+
+# print('?'.join(
+#     (OAUTH_URL, urlencode(OAUTH_PARAMS))
+# ))
 
 class User:
     def __init__(self, token, domain, owner_id: int):
@@ -74,9 +78,10 @@ class User:
         params = self.get_params()
         params['user_id'] = self.owner_id
         params['extended'] = '1'
-        params['fields'] = 'name'
+        params['fields'] = 'name' #,'deactivated','is_closed'
         URL = 'https://api.vk.com/method/groups.get'
         response = requests.get(URL, params)
+        print(response.text)
         print(f"У пользователя {response.json()['response']['count']} групп")
         for groupitem in response.json()['response']['items']:
             print(f"{groupitem['id']} ==> {groupitem['name']}")
