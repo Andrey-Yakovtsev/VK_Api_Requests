@@ -79,15 +79,23 @@ class User:
         print(response.json()['response'])
 
 
-    def user_friends_groups_lookup(self, groupid):
+    # def user_friends_groups_lookup(self, groupid):
+    #     params = self.get_params()
+    #     params['user_ids'] = self.get_friends(5)
+    #     params['extended'] = 1
+    #     params['group_id'] = groupid
+    #     URL = 'https://api.vk.com/method/groups.isMember'
+    #     response = requests.get(URL, params)
+    #     print(response.json())
+
+    def get_group_members(self, groupid): # Возвращает список участников сообщества.
         params = self.get_params()
-        params['user_ids'] = ['3730376', '268721993']   # self.get_friends(100)
-        params['extended'] = 1
         params['group_id'] = groupid
-        URL = 'https://api.vk.com/method/groups.isMember'
+        # params['fields'] = 'common_count'
+        params['filter'] = 'friends'    # Возвращает только друзей. Если там их нет, то {'response': {'count': 0, 'items': []}}
+        URL = 'https://api.vk.com/method/groups.getMembers'
         response = requests.get(URL, params)
         print(response.json())
-
 
 
 
@@ -97,10 +105,10 @@ Sofya = User(token, 'https://vk.com/s.yakovtseva', 268721993)
 Yana = User(token, 'https://vk.com/id4867400', 4867400)
 
 
-pprint(Andrey.user_friends_groups_lookup(90329578))
-pprint(Andrey.get_user_groups())
-# pprint(Andrey.get_friends(500))
+# pprint(Andrey.user_friends_groups_lookup(90329578))
+# pprint(Andrey.get_user_groups())
+# pprint(Andrey.get_friends(10))
 
-
+pprint(Andrey.get_group_members(44016898))
 
 
