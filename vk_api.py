@@ -48,7 +48,7 @@ class User:
     #     for item in response.json()['response']['items']:
     #          print(item['text'])
 
-    def get_friends(self, count):
+    def get_friends(self, count): # Выводит все друзей пользователя по его ID
         params = self.get_params()
         params['user_id'] = self.owner_id
         params['count'] = count #  кол-во друзей в выводе (умолч. - 5000)
@@ -58,7 +58,7 @@ class User:
         friends_list = []
         for item in response.json()['response']['items']:
             friends_list.append(item['id'])
-        return friends_list
+        return print('Список друзей', friends_list)
     # def get_mutual_friends(self, friend1, friend2):
     #     params = self.get_params()
     #     # user1 = self.owner_id
@@ -70,32 +70,44 @@ class User:
     #     for item in response.json()['response']:
     #         return item['common_friends'], len(item['common_friends'])
 
-    def get_user_groups(self):
+    def get_user_groups(self):      # Выводит все группы пользователя по его ID
         params = self.get_params()
         params['user_id'] = self.owner_id
-        params['extend'] = 1
+        params['extended'] = '1'
+        params['fields'] = 'name'
         URL = 'https://api.vk.com/method/groups.get'
         response = requests.get(URL, params)
-        print(response.json()['response'])
+        print(f"У пользователя {response.json()['response']['count']} групп")
+        for groupitem in response.json()['response']['items']:
+            print(f"{groupitem['id']} ==> {groupitem['name']}")
+            return groupitem['id']
 
 
-    # def user_friends_groups_lookup(self, groupid):
-    #     params = self.get_params()
-    #     params['user_ids'] = self.get_friends(5)
-    #     params['extended'] = 1
-    #     params['group_id'] = groupid
-    #     URL = 'https://api.vk.com/method/groups.isMember'
-    #     response = requests.get(URL, params)
-    #     print(response.json())
+    def user_friends_groups_lookup(self, groupid): # Выводит список друзей по ID группы
+        params = self.get_params()
+        params['user_ids'] = str(self.get_friends(1000))
+        # params['extended'] = 1
+        params['group_id'] = groupid
+        URL = 'https://api.vk.com/method/groups.isMember'
+        response = requests.get(URL, params)
+        i = 0
+        for item in  (response.json()['response']):
+            if item['member'] == 1:
+                i+=1
+                print(i, '==>', item['user_id'])
 
-    def get_group_members(self, groupid): # Возвращает список участников сообщества.
+    def get_group_members(self, groupid): # Возвращает список всех участников сообщества. Hо по фильтру только друзей
         params = self.get_params()
         params['group_id'] = groupid
         # params['fields'] = 'common_count'
         params['filter'] = 'friends'    # Возвращает только друзей. Если там их нет, то {'response': {'count': 0, 'items': []}}
         URL = 'https://api.vk.com/method/groups.getMembers'
         response = requests.get(URL, params)
-        print(response.json())
+        groups_dict = {"groupid": groupid, 'members_count': response.json()["response"]["count"]}
+        print(f'Всего друзей в списке {response.json()["response"]["count"]}')
+        print(response.json()['response']['items'])
+        print(groups_dict)
+
 
 
 
@@ -105,10 +117,10 @@ Sofya = User(token, 'https://vk.com/s.yakovtseva', 268721993)
 Yana = User(token, 'https://vk.com/id4867400', 4867400)
 
 
-# pprint(Andrey.user_friends_groups_lookup(90329578))
-# pprint(Andrey.get_user_groups())
-# pprint(Andrey.get_friends(10))
+# pprint(Andrey.user_friends_groups_lookup(11770))
+pprint(Andrey.get_user_groups())
+# pprint(Andrey.get_friends(1000))
 
-pprint(Andrey.get_group_members(44016898))
+# pprint(Andrey.get_group_members(11770))
 
 
