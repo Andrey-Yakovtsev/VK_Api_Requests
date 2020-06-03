@@ -51,12 +51,14 @@ class User:
         global groups_ids_names_dict
         groups_ids_names_dict = {}
         for groupitem in response.json()['response']['items']:
-            # print(groupitem)
-            if groupitem['deactivated'] == 'banned':
-                print('found')
-            # groups_ids_names_dict.update({groupitem['id']: groupitem['name']})     #Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
-            # groups_ids_list.append(groupitem['id'])     #Собрал список всех ID своих групп, чтобы потом по ним пройтись
-            # print(f"{groupitem['id']} ==> {groupitem['name']}") #Проверить связку Айди и названия
+            try:
+                if groupitem['deactivated'] == 'banned':
+                    print(f'Группа {groupitem["id"]} забанена и не добавлена в список')
+
+            except KeyError:
+                groups_ids_names_dict.update({groupitem['id']: groupitem['name']})  # Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
+                groups_ids_list.append(groupitem['id'])  # Собрал список всех ID своих групп, чтобы потом по ним пройтись
+                # print(f"{groupitem['id']} ==> {groupitem['name']}")  # Проверить связку Айди и названия
         # print(groups_ids_names_dict)
         return groups_ids_list
 
@@ -83,7 +85,7 @@ Andrey = User(token, 'https://vk.com/ayakovtsev', 3293131)
 
 
 # pprint(Andrey.user_friends_groups_lookup(11770))
-pprint(Andrey.get_user_groups())
+# pprint(Andrey.get_user_groups())
 # pprint(Andrey.get_friends(1000))
 
 # print(Andrey.get_group_members(Andrey.get_user_groups()))
@@ -98,3 +100,7 @@ pprint(Andrey.get_user_groups())
 #
 # except KeyError as e:
 #     print(e)
+
+for unique_id in Andrey.get_user_groups():
+    Andrey.get_group_members(unique_id)
+    time.sleep(1)
