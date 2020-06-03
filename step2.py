@@ -46,14 +46,17 @@ class User:
         params['fields'] = 'name'
         URL = 'https://api.vk.com/method/groups.get'
         response = requests.get(URL, params)
-        # print(response.text)
+        # pprint(response.text)
         print(f"У пользователя {response.json()['response']['count']} групп")
         global groups_ids_names_dict
         groups_ids_names_dict = {}
         for groupitem in response.json()['response']['items']:
-            groups_ids_names_dict.update({groupitem['id']: groupitem['name']})     #Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
-            groups_ids_list.append(groupitem['id'])     #Собрал список всех ID своих групп, чтобы потом по ним пройтись
-            print(f"{groupitem['id']} ==> {groupitem['name']}") #Проверить связку Айди и названия
+            # print(groupitem)
+            if groupitem['deactivated'] == 'banned':
+                print('found')
+            # groups_ids_names_dict.update({groupitem['id']: groupitem['name']})     #Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
+            # groups_ids_list.append(groupitem['id'])     #Собрал список всех ID своих групп, чтобы потом по ним пройтись
+            # print(f"{groupitem['id']} ==> {groupitem['name']}") #Проверить связку Айди и названия
         # print(groups_ids_names_dict)
         return groups_ids_list
 
@@ -84,6 +87,9 @@ pprint(Andrey.get_user_groups())
 # pprint(Andrey.get_friends(1000))
 
 # print(Andrey.get_group_members(Andrey.get_user_groups()))
+
+# На группе 51296941 ==> Бot.ТвouГоctи спотыкается код, потому что
+# Она забанена
 
 # try:
 #     for unique_id in Andrey.get_user_groups():
