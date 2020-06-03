@@ -5,7 +5,7 @@ import time
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
-token = '2c1c91739b1d46ddb11b8d25d5041edde9a15321be62f270b54ac5ef1148e78cdaf52d40f70cfc0bd2341'
+token = '86663e6d4628623124cfd3a9978e01aa8b84f51d401d4fedc5b80fc0d4628b98c68558537c125078f1f3f'
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',
@@ -43,24 +43,29 @@ class User:
         params = self.get_params()
         params['user_id'] = self.owner_id
         params['extended'] = '1'
-        params['fields'] = 'name'
+        params['fields'] = 'name', 'members_count'
         URL = 'https://api.vk.com/method/groups.get'
         response = requests.get(URL, params)
         # pprint(response.text)
-        print(f"У пользователя {response.json()['response']['count']} групп")
+        print(f"У пользователя всего {response.json()['response']['count']} групп")
         global groups_ids_names_dict
         groups_ids_names_dict = {}
+        global groups_ids_usercount_dict
+        groups_ids_usercount_dict = {}
+        # pprint(response.json())
         for groupitem in response.json()['response']['items']:
             try:
                 if groupitem['deactivated'] == 'banned':
-                    print(f'Группа {groupitem["id"]} забанена и не добавлена в список')
+                    print(f' Из них группа {groupitem["id"]} забанена и не добавлена в список')
 
             except KeyError:
                 groups_ids_names_dict.update({groupitem['id']: groupitem['name']})  # Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
+                groups_ids_usercount_dict.update({groupitem['id']: groupitem['members_count']})  # Собрал словарь из Айди - кол-во юзеров, чтоб потом подтянуть в файл
                 groups_ids_list.append(groupitem['id'])  # Собрал список всех ID своих групп, чтобы потом по ним пройтись
                 # print(f"{groupitem['id']} ==> {groupitem['name']}")  # Проверить связку Айди и названия
-        # print(groups_ids_names_dict)
-        return groups_ids_list
+        # print(groups_ids_names_dict)    #Здесь лежит словарь с Айди и названием группы
+        # print(groups_ids_usercount_dict)
+        return groups_ids_list  #, groups_ids_names_dict
 
 
     def get_group_members(self, groupid): # Возвращает список всех участников сообщества. Hо по фильтру только друзей
@@ -69,14 +74,21 @@ class User:
         params['filter'] = 'friends'    # Возвращает только друзей. Если там их нет, то {'response': {'count': 0, 'items': []}}
         URL = 'https://api.vk.com/method/groups.getMembers'
         response = requests.get(URL, params)
-        groups_dict = {
-            "groupid": groupid,
-            # "groupname": groups_ids_names_dict['groupid'],
-            'members_count': response.json()["response"]["count"]
-        }
+        # print(response.text)
+        if response.json()["response"]["count"] == 0:
+            groups_dict = {
+                "groupid": groupid,
+                "groupname": groups_ids_names_dict[groupid],
+                'members_count': groups_ids_usercount_dict[groupid],
+                'common_friends_count': response.json()["response"]["count"]
+            }
+            print(groups_dict)
+        else:
+            pass
         # print(f'Название группы {groupname}. Всего друзей в списке {response.json()["response"]["count"]}')
         # print(response.json()['response']['items'])
-        print(groups_dict)
+        # print(groups_ids_names_dict[groupid])
+
 
 
 
@@ -90,17 +102,17 @@ Andrey = User(token, 'https://vk.com/ayakovtsev', 3293131)
 
 # print(Andrey.get_group_members(Andrey.get_user_groups()))
 
-# На группе 51296941 ==> Бot.ТвouГоctи спотыкается код, потому что
-# Она забанена
 
-# try:
+try:
+    for unique_id in Andrey.get_user_groups():
+        Andrey.get_group_members(unique_id)
+        time.sleep(1)
+
+except KeyError as e:
+    print(e)
+
+
+# with open('groups.json', encoding='utf-8', 'w' ) as fileoutput:
 #     for unique_id in Andrey.get_user_groups():
 #         Andrey.get_group_members(unique_id)
 #         time.sleep(1)
-#
-# except KeyError as e:
-#     print(e)
-
-for unique_id in Andrey.get_user_groups():
-    Andrey.get_group_members(unique_id)
-    time.sleep(1)

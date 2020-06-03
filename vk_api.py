@@ -14,9 +14,10 @@ OAUTH_PARAMS = {
     'v': 5.89
 }
 
-# print('?'.join(
-#     (OAUTH_URL, urlencode(OAUTH_PARAMS))
-# ))
+print('?'.join(
+    (OAUTH_URL, urlencode(OAUTH_PARAMS))
+))
+"""
 
 class User:
     def __init__(self, token, domain, owner_id: int):
@@ -129,3 +130,4 @@ pprint(Andrey.get_user_groups())
 # pprint(Andrey.get_group_members(11770))
 
 
+"""
