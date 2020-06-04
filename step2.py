@@ -117,6 +117,7 @@ with open('groups.json', 'w', encoding='utf-8') as fileoutput:
     for unique_id in Andrey.get_user_groups():
         print('Requesting  VK API...')
         data = Andrey.get_group_members(unique_id)
-        json.dump(data, fileoutput, ensure_ascii=False, indent=2)
-        pprint(data)
+        json.dump(data, fileoutput, ensure_ascii=False, indent=4)
+        if data:
+            pprint(data)
         time.sleep(1)
