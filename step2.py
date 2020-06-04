@@ -5,7 +5,7 @@ import time
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
-token = '86663e6d4628623124cfd3a9978e01aa8b84f51d401d4fedc5b80fc0d4628b98c68558537c125078f1f3f'
+token = '54b1c09db46789e7a4dad4c61a3e7229bbbb85bcdf1679db22e6f4ffa2284a9faab9d29f432a8df3855e9'
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',
@@ -84,7 +84,7 @@ class User:
             }
             return groups_dict #print(groups_dict)
         else:
-            pass
+            return None
         # print(f'Название группы {groupname}. Всего друзей в списке {response.json()["response"]["count"]}')
         # print(response.json()['response']['items'])
         # print(groups_ids_names_dict[groupid])
@@ -117,7 +117,14 @@ with open('groups.json', 'w', encoding='utf-8') as fileoutput:
     for unique_id in Andrey.get_user_groups():
         print('Requesting  VK API...')
         data = Andrey.get_group_members(unique_id)
-        json.dump(data, fileoutput, ensure_ascii=False, indent=4)
-        if data:
-            pprint(data)
+        try:
+            if data:
+                json.dump(data, fileoutput, ensure_ascii=False, indent=4)
+                pprint(data)
+
+        except Exception as e:
+            print(e)
+            continue
         time.sleep(1)
+
+
