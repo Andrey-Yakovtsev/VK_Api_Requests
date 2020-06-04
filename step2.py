@@ -79,10 +79,10 @@ class User:
             groups_dict = {
                 "groupid": groupid,
                 "groupname": groups_ids_names_dict[groupid],
-                'members_count': groups_ids_usercount_dict[groupid],
-                'common_friends_count': response.json()["response"]["count"]
+                'members_count': groups_ids_usercount_dict[groupid]
+                # 'common_friends_count': response.json()["response"]["count"]
             }
-            print(groups_dict)
+            return groups_dict #print(groups_dict)
         else:
             pass
         # print(f'Название группы {groupname}. Всего друзей в списке {response.json()["response"]["count"]}')
@@ -94,7 +94,7 @@ class User:
 
 
 Andrey = User(token, 'https://vk.com/ayakovtsev', 3293131)
-
+Sofya = User(token, 'https://vk.com/s.yakovtseva', 268721993)
 
 # pprint(Andrey.user_friends_groups_lookup(11770))
 # pprint(Andrey.get_user_groups())
@@ -103,16 +103,20 @@ Andrey = User(token, 'https://vk.com/ayakovtsev', 3293131)
 # print(Andrey.get_group_members(Andrey.get_user_groups()))
 
 
-try:
-    for unique_id in Andrey.get_user_groups():
-        Andrey.get_group_members(unique_id)
-        time.sleep(1)
-
-except KeyError as e:
-    print(e)
-
-
-# with open('groups.json', encoding='utf-8', 'w' ) as fileoutput:
+# try:
 #     for unique_id in Andrey.get_user_groups():
+#         print('Requesting  VK API...')
 #         Andrey.get_group_members(unique_id)
 #         time.sleep(1)
+#
+# except Exception as e:
+#     print(e)
+
+
+with open('groups.json', 'w', encoding='utf-8') as fileoutput:
+    for unique_id in Andrey.get_user_groups():
+        print('Requesting  VK API...')
+        data = Andrey.get_group_members(unique_id)
+        json.dump(data, fileoutput, ensure_ascii=False, indent=2)
+        pprint(data)
+        time.sleep(1)
