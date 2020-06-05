@@ -5,7 +5,7 @@ import time
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
-token = 'c5d80011754c61be9e5c14046c4c3fdc47a79be0f1834ace23ca1264e05fb0241ef45c68494356c568fb5'
+token = '6f7d6851625a2ed32a699df5d3188f43810a3876951821c01991ea59730e3a6092bac5d02da393fd1e9a8'
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',

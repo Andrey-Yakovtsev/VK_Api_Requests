@@ -22,7 +22,7 @@ domain = 'https://vk.com/ayakovtsev'
 import requests
 
 API = "https://api.vk.com/method"
-ACCESS_TOKEN = "c5d80011754c61be9e5c14046c4c3fdc47a79be0f1834ace23ca1264e05fb0241ef45c68494356c568fb5"
+ACCESS_TOKEN = "6f7d6851625a2ed32a699df5d3188f43810a3876951821c01991ea59730e3a6092bac5d02da393fd1e9a8"
 V = '5.89'
 
 response = requests.post(url=f"{API}/execute",
