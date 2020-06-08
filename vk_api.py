@@ -14,9 +14,9 @@ OAUTH_PARAMS = {
     'v': 5.89
 }
 
-# print('?'.join(
-#     (OAUTH_URL, urlencode(OAUTH_PARAMS))
-# ))
+print('?'.join(
+    (OAUTH_URL, urlencode(OAUTH_PARAMS))
+))
 
 class User:
     def __init__(self, token, owner_id: int): #domain,
