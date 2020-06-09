@@ -34,7 +34,6 @@ class User:
         Предлагаю возвращать из get_user_groups не просто список групп,
         а следующую структуру: {group_id: {'members_count: ..., 'name':...}
         '''
-        groups_ids_list = []
         params = self.get_params()
         params['user_id'] = self.owner_id
         params['extended'] = '1'
@@ -49,13 +48,8 @@ class User:
                          {'members_count': groupitem['members_count'], 'name': groupitem['name']}
                      }
                 )  # Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
-                groups_ids_list.append(
-                    {groupitem['id']:
-                         {'members_count': groupitem['members_count'], 'name': groupitem['name']}
-                     }
-                )
             else:
-                print(f' Из них группа {groupitem["id"]} забанена и не добавлена в список')
+                print(f' Группа {groupitem["id"]} забанена и не добавлена в список')
         return groups_ids_names_dict
 
 
@@ -88,8 +82,7 @@ for keys, values in Andrey.get_user_groups().items():
     to_json_file_list.append(common_friends_groups_dict)
     time.sleep(0.5)
     print('Requesting  VK API. Collectig data for JSON file')
-    # print(to_json_file_list)
-    # pprint(common_friends_groups_dict)
+
 
 
 if __name__ == '__main__':
