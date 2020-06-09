@@ -70,22 +70,25 @@ class User:
 
 Andrey = User(token, 3293131)
 
-common_friends_groups_dict = {}
-to_json_file_list = []
-for keys, values in Andrey.get_user_groups().items():
-    if Andrey.get_group_members(keys)['response']['count'] != 0:
-        common_friends_groups_dict = {'groupid': keys,
-                         'groupname': values['name'],
-                         'members_count': values['members_count']}
-    else:
-        continue
-    to_json_file_list.append(common_friends_groups_dict)
-    time.sleep(0.5)
-    print('Requesting  VK API. Collectig data for JSON file')
-
 
 
 if __name__ == '__main__':
+
+    common_friends_groups_dict = {}
+    to_json_file_list = []
+
+    for keys, values in Andrey.get_user_groups().items():
+        if Andrey.get_group_members(keys)['response']['count'] != 0:
+            pass
+        else:
+            common_friends_groups_dict = {'groupid': keys,
+                                          'groupname': values['name'],
+                                          'members_count': values['members_count']}
+            to_json_file_list.append(common_friends_groups_dict)
+        time.sleep(0.5)
+        print('Requesting  VK API. Collectig data for JSON file')
+
+
     with open('groups.json', 'w', encoding='utf-8') as fileoutput:
         json.dump(to_json_file_list, fileoutput, ensure_ascii=False, indent=4)
 
