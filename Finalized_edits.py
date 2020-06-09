@@ -80,17 +80,16 @@ common_friends_groups_dict = {}
 to_json_file_list = []
 for keys, values in Andrey.get_user_groups().items():
     if Andrey.get_group_members(keys)['response']['count'] != 0:
-        common_friends_groups_dict.update(
-                        {'groupid': keys,
+        common_friends_groups_dict = {'groupid': keys,
                          'groupname': values['name'],
-                         'members_count': values['members_count']})
+                         'members_count': values['members_count']}
     else:
         continue
-    time.sleep(0.5)
     to_json_file_list.append(common_friends_groups_dict)
+    time.sleep(0.5)
     print('Requesting  VK API. Collectig data for JSON file')
-
-
+    # print(to_json_file_list)
+    # pprint(common_friends_groups_dict)
 
 
 if __name__ == '__main__':
