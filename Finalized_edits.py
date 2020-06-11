@@ -5,7 +5,7 @@ import time
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
-token = '65193ed9703c93e114e9d94176976acddaaf57d7df53b15361c09602856f82192dbe23bf39f05c6c16f17'
+token = 'c85501f8e96be2a7c52cbdaa411e201c00cef2c8b6edc68be07fcf0237b9b7f4063515866664fe3f1d00c'
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',
@@ -78,9 +78,7 @@ if __name__ == '__main__':
     to_json_file_list = []
 
     for keys, values in Andrey.get_user_groups().items():
-        if Andrey.get_group_members(keys)['response']['count'] != 0:
-            pass
-        else:
+        if Andrey.get_group_members(keys)['response']['count'] == 0:
             common_friends_groups_dict = {'groupid': keys,
                                           'groupname': values['name'],
                                           'members_count': values['members_count']}
