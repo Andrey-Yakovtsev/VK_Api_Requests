@@ -41,16 +41,27 @@ class User:
         URL = 'https://api.vk.com/method/groups.get'
         response = requests.get(URL, params)
         groups_ids_names_dict = {}
+        groups_ids_names_list = []
         for groupitem in response.json()['response']['items']:
             if not groupitem.get('deactivated') == 'banned':
                 groups_ids_names_dict.update(
-                    {groupitem['id']:
-                         {'members_count': groupitem['members_count'], 'name': groupitem['name']}
+                    {'groupid': groupitem['id'],
+                     'members_count': groupitem['members_count'],
+                     'name': groupitem['name']
                      }
-                )  # Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
+                )
+                groups_ids_names_list.append(
+                    {'groupid': groupitem['id'],
+                     'members_count': groupitem['members_count'],
+                     'name': groupitem['name']
+                     }
+                )
+                # Собрал словарь из Айди - Имя, чтоб потом подтянуть в файл
             else:
                 print(f' Группа {groupitem["id"]} забанена и не добавлена в список')
-        return groups_ids_names_dict
+        # print(groups_ids_names_list)
+        return groups_ids_names_list
+        # return groups_ids_names_dict
 
 
 
@@ -64,29 +75,37 @@ class User:
         params['filter'] = 'friends'    # Возвращает только друзей. Если там их нет, то {'response': {'count': 0, 'items': []}}
         URL = 'https://api.vk.com/method/groups.getMembers'
         response = requests.get(URL, params)
-        return response.json()
+        print(response.json()['response'])
+        # if response.json()['response']['count'] == 0:
+        #     print(response.json()['response'])
+            # return response.json()['response']['groupid']
 
 
 
 Andrey = User(token, 3293131)
+# Andrey.get_user_groups()
+Andrey.get_group_members(11770)
+# to_json_file_list = []
+# for item in Andrey.get_user_groups():
+#     if Andrey.get_group_members(keys)['response']['count'] == 0:
+#
+#         print(Andrey.get_group_members(keys))
+
+# if __name__ == '__main__':
+#
+#     common_friends_groups_dict = {}
+#     to_json_file_list = []
+#
+#     for keys, values in Andrey.get_user_groups().items():
+#         if Andrey.get_group_members(keys)['response']['count'] == 0:
+#             common_friends_groups_dict = {'groupid': keys,
+#                                           'groupname': values['name'],
+#                                           'members_count': values['members_count']}
+#             to_json_file_list.append(common_friends_groups_dict)
+#         time.sleep(0.5)
+#         print('Requesting  VK API. Collectig data for JSON file')
 
 
-
-if __name__ == '__main__':
-
-    common_friends_groups_dict = {}
-    to_json_file_list = []
-
-    for keys, values in Andrey.get_user_groups().items():
-        if Andrey.get_group_members(keys)['response']['count'] == 0:
-            common_friends_groups_dict = {'groupid': keys,
-                                          'groupname': values['name'],
-                                          'members_count': values['members_count']}
-            to_json_file_list.append(common_friends_groups_dict)
-        time.sleep(0.5)
-        print('Requesting  VK API. Collectig data for JSON file')
-
-
-    with open('groups.json', 'w', encoding='utf-8') as fileoutput:
-        json.dump(to_json_file_list, fileoutput, ensure_ascii=False, indent=4)
+    # with open('groups.json', 'w', encoding='utf-8') as fileoutput:
+    #     json.dump(to_json_file_list, fileoutput, ensure_ascii=False, indent=4)
 

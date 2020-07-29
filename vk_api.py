@@ -9,7 +9,7 @@ token = '65193ed9703c93e114e9d94176976acddaaf57d7df53b15361c09602856f82192dbe23b
 OAUTH_PARAMS = {
     'client_id': '7493907', #ID  приложения которое просит доступ
     'display': 'page',
-    'scope': 'notify, friends, photos, status, groups',
+    'scope': 'notify, friends, photos, status, groups, offline',
     'response_type': 'token',
     'v': 5.89
 }
@@ -53,19 +53,19 @@ class User:
             return item['common_friends'] #item['common_friends'],
 
 
-Andrey = User(token, 3293131)
-Genka = User(token, 3730376)
-Sofya = User(token, 268721993)
-Yana = User(token, 4867400)
-
-
-
-a_s_list = Andrey & Sofya
-a_y_list = Andrey & Yana
-a_g_list = Andrey & Genka
-
-print(f'У пользователей Andrey и Sofya  {len(a_s_list)} общих друзей')
-print(f'У пользователей Andrey и Yana  {len(a_y_list)} общих друзей')
-print(f'У пользователей Andrey и Genka  {len(a_g_list)} общих друзей')
+# Andrey = User(token, 3293131)
+# Genka = User(token, 3730376)
+# Sofya = User(token, 268721993)
+# Yana = User(token, 4867400)
+#
+#
+#
+# a_s_list = Andrey & Sofya
+# a_y_list = Andrey & Yana
+# a_g_list = Andrey & Genka
+#
+# print(f'У пользователей Andrey и Sofya  {len(a_s_list)} общих друзей')
+# print(f'У пользователей Andrey и Yana  {len(a_y_list)} общих друзей')
+# print(f'У пользователей Andrey и Genka  {len(a_g_list)} общих друзей')
 
 
