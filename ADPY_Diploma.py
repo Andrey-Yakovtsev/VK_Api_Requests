@@ -41,51 +41,70 @@ def get_params():
         'v': 5.89,
     }
 
-class CommonMethods:
+class User:
     def __init__(self, token):
         self.token = token
 
-    def user_search(self, search_query: str):
+    def get_chosen_user_info(self): #пока подставляю случайны ID - 1й в индерсе поиска.
+        matched_user = User.relation_ready_user_search(token, 'Андрей Яковцев')
         params = get_params()
-        params['q'] = search_query
-        # params['user_id'] = owner_id # Здесь не используется
-        # params['count'] = count  # кол-во записей в выводе (умолч. - 1000)
-        params['has_photo'] = 1 # без фотки не выводятся
-        params['fields'] = 'nickname', 'photo_id', 'verified', 'sex', 'bdate', 'city', 'country', \
-                           'home_town', 'has_photo',  'photo_max', 'photo_max_orig', 'domain', \
-                           'has_mobile', 'contacts', 'common_count', 'nickname', 'interests', 'screen_name'
-        URL = 'https://api.vk.com/method/users.search'
-        response = requests.get(URL, params)
-        results_list = []
-        print(response.text)
-        for item in response.json()['response']['items']:
-            results_list.append(item['screen_name'])
-        print('Результаты поиска ids==>', results_list)
-        return results_list
-
-    def get_chosen_user_info(self, owner_id): #, count: int(10)): пока подставляю свой ID.
-        params = get_params()
-        params['user_ids'] = owner_id
+        params['user_ids'] = matched_user[0] #ID - 1й в индексе поиска.
         # params['count'] = count  # кол-во записей в выводе (умолч. - 1000)
         params['fields'] = 'sex, bdate, city, relation, verified, nickname, occupation,' \
                            'home_town, interests, books, contacts, about, activities' \
-                           'has_photo, common_count, is_friend, personal, has_photo, photo_id,'
+                           'has_photo, common_count, is_friend, personal, has_photo, photo_max,'
 
         URL = 'https://api.vk.com/method/users.get'
         response = requests.get(URL, params)
-        # results_list = []
-        pprint(response.text)
-        # for item in response.json()['response']:
-        #     print(item.items())
-        #     results_list.append(item['id'])
-        # return print('Результаты поиска ids==>', results_list)
-
-class User:
-    def __init__(self, token, owner_id: int):
-        self.token = token
-        self.owner_id = int(owner_id) # ID юзера в ВК
+        # pprint(response.json()['response'][0])
+        return response.json()['response'][0]
 
 
+    def relation_ready_user_search(self, search_query: str):
+        mega_search_result = []
+        i=1
+        for symbol in search_query:
+            # print(symbol)
+            params = get_params()
+            params['q'] = symbol
+            params['count'] = 10 #999
+            params['has_photo'] = 1 # без фотки не выводятся
+            params['fields'] = 'relation, sex, city, bdate, screen_name, photo_200' #добрать параметров
+            URL = 'https://api.vk.com/method/users.search'
+            response = requests.get(URL, params)
+            time.sleep(0.4)
+            print('Запрос:==>', i)
+            i+=1
+            proper_status = '0156' # Это статусы тех, кто открыто их объявил. Без указания статуса (None) исключены
+            # print(response.text) # тут упоминается 241 млн записей: {"response":{"count":241720908,"items":...
+            for user in response.json()['response']['items']:
+                if str(user.get('relation')) in proper_status:
+                    mega_search_result.append(user['id'])
+        print('Подходящий статус у ids==>', len(mega_search_result), mega_search_result) #, results_list)
+        return mega_search_result #можно впринципе пройтись разок поиском и все итоги убрать в базу
 
-# CommonMethods.user_search(token,'Андрей Яковцев') #id344493552
-CommonMethods.get_chosen_user_info(token, 'ayakovtsev')
+class Matching:
+    '''
+    функции проверки параметров соответствия юзеров из полученной базы нашему юзеру
+    Получают на вход юзера, выдают рейтинги соответствия каждого юзера выбранному
+    '''
+    # matched_user = User.get_chosen_user_info(token)
+    # user_sex = matched_user['sex']
+    # user_bdate = matched_user['bdate'].split('.')
+    # city = matched_user['city']['title']
+
+    def matching_sex(self):
+        # for user in response.json()['response']['items']:
+        #     if user['sex'] != user_sex: #выборка оп полу
+        pass
+
+    def mathcing_age_delta(self):
+        pass
+
+    def matching_location(self):
+        if str(user.get('city')) == city and not None:
+                    print(user.get('city'))
+        pass
+# User.get_chosen_user_info(token).relation_ready_user_search(token,'Андрей Яковцев') #id344493552
+# User.get_chosen_user_info(token)
+User.relation_ready_user_search(token, 'абв')
