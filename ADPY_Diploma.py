@@ -21,7 +21,7 @@
 from pprint import pprint
 import requests
 import json
-import time
+import datetime, time
 
 
 OAUTH_URL = 'https://oauth.vk.com/authorize'
@@ -45,31 +45,61 @@ class User:
     def __init__(self, token):
         self.token = token
 
-    def get_chosen_user_info(self): #пока подставляю случайны ID - 1й в индерсе поиска.
-        matched_user = User.relation_ready_user_search(token, 'Андрей Яковцев')
+
+    def search_user_by_name(self, name):
+        '''
+
+        :param name: принимает имя строкой
+        :return: список всех соответствующих именю юзеров, в статусе "готов к отношениям"
+                И у кого указан год рождения
+                Я пока выбираю из него первого в списке search_result[0]
+        '''
+        search_result = []
         params = get_params()
-        params['user_ids'] = matched_user[0] #ID - 1й в индексе поиска.
-        # params['count'] = count  # кол-во записей в выводе (умолч. - 1000)
-        params['fields'] = 'sex, bdate, city, relation, verified, nickname, occupation,' \
+        params['q'] = name
+        params['count'] = 50  # 999
+        params['has_photo'] = 1  # без фотки не выводятся
+        params['fields'] = 'sex, bdate, city, relation, verified, first_name, last_name,  nickname, occupation,' \
                            'home_town, interests, books, contacts, about, activities' \
-                           'has_photo, common_count, is_friend, personal, has_photo, photo_max,'
-
-        URL = 'https://api.vk.com/method/users.get'
+                           'has_photo, common_count, is_friend, personal, has_photo, photo_max'
+        URL = 'https://api.vk.com/method/users.search'
         response = requests.get(URL, params)
-        # pprint(response.json()['response'][0])
-        return response.json()['response'][0]
+        proper_status = '0156'  # Это статусы тех, кто открыто их объявил. Без указания статуса (None) исключены
+        # print(response.text)
+
+        for user in response.json()['response']['items']:
+            current_year = datetime.datetime.now()
+            if str(user.get('relation')) in proper_status:
+                if user.get('bdate'):
+                    if len(user.get('bdate').split('.')) == 3:
+                        user_bdate = user['bdate'].split('.')
+                        user_age = current_year.year - int(user_bdate[2])
+                        if user_age >= 18:
+                            search_result.append(user)  # ['id'])
+        print(f'Подходящий статус у {len(search_result)} результатов поиска. Берем 1-го из них')
+        return search_result[0]  # можно впринципе пройтись разок поиском и все итоги убрать в базу
 
 
-    def relation_ready_user_search(self, search_query: str):
+    def relation_ready_global_user_search(self, search_query: str):
+        '''
+
+        :param search_query: принимает строку символов (весь русский и латинский алфавит и цифры)
+                            идет по каждому символу в цикле.
+                            NB!!! Не забыть поменять параметр ['count'] на 999
+
+        :return: выводит список "готовых к отношениям" и с указанным годом рождения
+        '''
         mega_search_result = []
         i=1
         for symbol in search_query:
-            # print(symbol)
             params = get_params()
             params['q'] = symbol
             params['count'] = 10 #999
             params['has_photo'] = 1 # без фотки не выводятся
-            params['fields'] = 'relation, sex, city, bdate, screen_name, photo_200' #добрать параметров
+            params['fields'] = 'sex, bdate, city, relation, verified, first_name, last_name,  nickname, occupation,' \
+                           'home_town, interests, books, contacts, about, activities' \
+                           'has_photo, common_count, is_friend, personal, has_photo, photo_max'
+
             URL = 'https://api.vk.com/method/users.search'
             response = requests.get(URL, params)
             time.sleep(0.4)
@@ -79,9 +109,26 @@ class User:
             # print(response.text) # тут упоминается 241 млн записей: {"response":{"count":241720908,"items":...
             for user in response.json()['response']['items']:
                 if str(user.get('relation')) in proper_status:
-                    mega_search_result.append(user['id'])
-        print('Подходящий статус у ids==>', len(mega_search_result), mega_search_result) #, results_list)
+                    if user.get('bdate'):
+                        if len(user.get('bdate').split('.')) == 3:
+                            mega_search_result.append(user) #['id'])
+        # print('Подходящий статус у ids==>', len(mega_search_result), mega_search_result) #, results_list)
         return mega_search_result #можно впринципе пройтись разок поиском и все итоги убрать в базу
+
+'''
+30/07 - итоги. Поиск в цикле по алфавиту все возвращает.
+Надо докинуть нужных условий в запрос (3 фото, активности и увлечения и что там еще в требованиях)
+"""(У тех людей, которые подошли по требованиям пользователю, получать топ-3 популярных фотографии с аватара. 
+Популярность определяется по количеству лайков и комментариев.)""""
+
+Подобрать базу (СКулайт?).
+Продумать таблички
+Попробовать загрузку...
+
+!!!! Прежде чем в базу запиливать, доделать вывод на 20-30 результатах, чтобы потом структуру базы правильно подобрать
+'''
+
+
 
 class Matching:
     '''
@@ -93,18 +140,53 @@ class Matching:
     # user_bdate = matched_user['bdate'].split('.')
     # city = matched_user['city']['title']
 
-    def matching_sex(self):
-        # for user in response.json()['response']['items']:
-        #     if user['sex'] != user_sex: #выборка оп полу
-        pass
+    def matching_sex(self, user, search_result):
+        '''
 
-    def mathcing_age_delta(self):
-        pass
+        :param user: Указывает на пользователя которому ищем пару
+        :param search_result: Указывает вывод результатов поиска по которому идет сравнение
+        :return: список с юзерами пола противоположеному от искомого юзера
+        '''
+        user_sex = user['sex']
+        sex_appropriate_candidates = []
+        for candidate in search_result:
+            if candidate['sex'] != user_sex: #выборка оп полу
+                sex_appropriate_candidates.append(candidate)
+        print(len(sex_appropriate_candidates))
+        return sex_appropriate_candidates
 
-    def matching_location(self):
-        if str(user.get('city')) == city and not None:
-                    print(user.get('city'))
-        pass
-# User.get_chosen_user_info(token).relation_ready_user_search(token,'Андрей Яковцев') #id344493552
-# User.get_chosen_user_info(token)
-User.relation_ready_user_search(token, 'абв')
+    def matching_age_delta(self, user, search_result):
+        user_bdate = user['bdate'].split('.')
+        current_year = datetime.datetime.now()
+        user_age = current_year.year - int(user_bdate[2])
+        for candidate in search_result:
+            print(len(search_result))
+            candidate_age = current_year.year - int(candidate['bdate'].split('.')[2])
+            delta = abs(user_age - candidate_age)
+            if delta <=3:
+                print('100%', candidate['first_name'])
+            if 4 <= delta <= 7:
+                print('70%', candidate['first_name'])
+            if 8 <= delta <= 15:
+                print('30%', candidate['first_name'])
+            if delta > 16:
+                print('10%', candidate['first_name'])
+
+
+    # def matching_location(self):
+    #     if str(user.get('city')) == city and not None:
+    #                 print(user.get('city'))
+    #     pass
+
+
+
+target_user = User.search_user_by_name(token,'Петр Петров')
+print(target_user)
+search_list = 'фыва'
+global_search_result = User.relation_ready_global_user_search(token, search_list)
+print('Всего нашли ==>',len(global_search_result))
+# print(global_search_result)
+match = Matching()
+filtered_sex = match.matching_sex(target_user, global_search_result)
+print('Отобрали по полу ==>', len(filtered_sex))
+match.matching_age_delta(target_user, filtered_sex)
